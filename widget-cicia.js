@@ -21,8 +21,8 @@
         function injectPLBadge() {
             try {
                 if (document.querySelector('.pl-seo-badge')) return;
-                var path = window.location.pathname;
-                var isProduct = path.includes('/produto/') || path.includes('/produtos/') || path.includes('/products/') || path.includes('/p/') || document.querySelector('meta[property="og:type"][content="product"]');
+                // Página de PRODUTO individual (não a listagem /produtos/): exige DOM de detalhe do produto.
+                var isProduct = !!document.getElementById('product_form') || !!document.querySelector('[data-store^="product-name-"]') || !!document.querySelector('meta[property="og:type"][content*="product"]');
                 if (!isProduct) return;
                 var b = document.createElement('div');
                 b.className = 'pl-seo-badge';
@@ -1785,12 +1785,18 @@ const fd = new FormData();
         };
     }
 
-    // ─── EXECUTA APENAS EM PÁGINAS DE PRODUTO ────────────────────────────────────
-    const isProductPage = window.location.pathname.includes('/products/') || window.location.pathname.includes('/product/') || window.location.pathname.includes('/produtos/') || window.location.pathname.includes('/produto/') || window.location.pathname.includes('/p/') || window.location.pathname.includes('preview.html') || document.querySelector('meta[property="og:type"][content="product"]');
-
-    if (isProductPage) {
-        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-        else init();
+    // ─── EXECUTA APENAS EM PÁGINAS DE PRODUTO INDIVIDUAL ─────────────────────────
+    // A listagem /produtos/ (com barra) casaria num guard por URL. Detectamos via DOM de
+    // detalhe do produto (#product_form / data-store product-name / og:type=product), que só
+    // existe na página de um produto — nunca na listagem/categoria.
+    function checkAndInit() {
+        var isProductPage = !!document.getElementById('product_form')
+            || !!document.querySelector('[data-store^="product-name-"]')
+            || !!document.querySelector('meta[property="og:type"][content*="product"]')
+            || window.location.pathname.includes('preview.html');
+        if (isProductPage) init();
     }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', checkAndInit);
+    else checkAndInit();
 
 })();
