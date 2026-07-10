@@ -1800,20 +1800,27 @@ const fd = new FormData();
                     } catch (e) {}
                     allProdImgs = allProdImgs.slice(0, 4);
                     console.log('[PL Cicia] Enviando', allProdImgs.length, 'fotos do produto');
+                    // A 1ª imagem VÁLIDA vira a principal (binary product_image); as demais vão
+                    // como base64. Sem isso, se a posição 0 (ex: og:image http/mixed-content) falhava,
+                    // NENHUMA product_image era enviada -> gerador quebrava ("not a string" no
+                    // Extract Product Image) e a prova virava ALTA DEMANDA.
+                    let _primaryDone = false, _slot = 1;
                     for (let _pi = 0; _pi < allProdImgs.length; _pi++) {
                         try {
                             const _b = await fetch(allProdImgs[_pi]).then(r => r.blob());
-                            if (!_b || !/^image\//i.test(_b.type)) continue; // pula HTML/nao-imagem -> evita 400 do gerador (ALTA DEMANDA)
-                            if (_pi === 0) {
+                            if (!_b || !/^image\//i.test(_b.type)) continue; // pula HTML/nao-imagem
+                            if (!_primaryDone) {
                                 fd.append('product_image', _b, 'product.jpg');
+                                _primaryDone = true;
                             } else {
+                                _slot++;
                                 const _b64 = await new Promise((resolve, reject) => {
                                     const _r = new FileReader();
                                     _r.onloadend = () => resolve(_r.result.split(',')[1]);
                                     _r.onerror = reject;
                                     _r.readAsDataURL(_b);
                                 });
-                                fd.append('product_image_' + (_pi+1) + '_b64', _b64);
+                                fd.append('product_image_' + _slot + '_b64', _b64);
                             }
                         } catch (_) { }
                     }
