@@ -977,10 +977,9 @@
         var instEl = document.getElementById('q-result-installment');
         if (instEl) { var _inst = getInstallment(); instEl.textContent = _inst; instEl.style.display = _inst ? 'block' : 'none'; }
         if (info && ((prodName || '').trim() || price)) info.style.display = 'block';
-        // Escassez
+        // Escassez ("APENAS N UNIDADES RESTANTES"): desativada nesta loja a pedido da Cicia.
         var sc = document.getElementById('q-scarcity');
-        var scn = document.getElementById('q-scarcity-n');
-        if (sc && scn && (prodName || '').trim()) { scn.textContent = scarcityCount(prodName); sc.style.display = 'flex'; }
+        if (sc) sc.style.display = 'none';
         // Notificações de compra: desativadas em todos os provadores
         btn.style.display = 'flex';
         if (trust) trust.style.display = 'flex';
