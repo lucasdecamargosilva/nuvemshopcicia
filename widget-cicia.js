@@ -170,21 +170,6 @@
             --font-body: inherit;
         }
 
-        /* ── Trigger (selo sobre foto) ── */
-        @keyframes q-shake { 0%,50%,100%{transform:rotate(0deg)} 10%,30%{transform:rotate(-10deg)} 20%,40%{transform:rotate(10deg)} }
-        .q-btn-trigger-ia {
-            position: absolute; top: 58px; right: 14px; z-index: 100;
-            background: none; border: none; padding: 0; cursor: pointer;
-            width: 70px; height: 70px;
-            display: flex; align-items: center; justify-content: center;
-            filter: drop-shadow(0 3px 10px rgba(0,0,0,0.22));
-            animation: q-shake 3s infinite;
-            transition: filter 0.2s;
-        }
-        .q-btn-trigger-ia:hover { filter: drop-shadow(0 6px 18px rgba(0,0,0,0.32)); }
-        .q-btn-trigger-ia img { width: 100%; height: 100%; object-fit: contain; }
-        @media (min-width: 768px) { .q-btn-trigger-ia { width: 70px; height: 70px; } }
-
         /* ── Inline button ── */
         .q-btn-inline-provador {
             display: flex; align-items: center; justify-content: center; gap: 7px;
@@ -681,11 +666,6 @@
     `;
 
 
-    // ─── IMAGEM DO BOTÃO (trigger) ─────────────────────────────────────────────
-    const stampImageHTML = `<img src="https://cdn.shopify.com/s/files/1/0636/6334/1746/files/logo_provador.png?v=1772494793" alt="Provador Virtual" style="width:100%;height:100%;object-fit:contain;">`;
-
-
-
     // ─── HTML ─────────────────────────────────────────────────────────────────────
 
 
@@ -1021,58 +1001,6 @@
         } catch (e) {}
 
 
-        // ── Botão imagem PNG ──
-        const openBtn = document.createElement('button');
-        openBtn.className = 'q-btn-trigger-ia';
-        openBtn.id = 'q-open-ia';
-        openBtn.setAttribute('aria-label', 'Abrir Provador Virtual');
-        openBtn.innerHTML = stampImageHTML;
-
-
-        const imgContainers = ['.js-product-slide', '.product-image-column', '.js-swiper-product', '[data-store^="product-image-"]', '.product__media-wrapper', '.product-gallery__media', '.product__media', '.product-image-main', '.product-media-container', '[data-media-id]', '.product__media-item', '.product-gallery', '.product-single__media', '.media-gallery'];
-
-        function tryPlaceTriggerBtn() {
-            // 1ª prioridade: container que tenha <img> dentro (evita cair em slide de vídeo)
-            for (const sel of imgContainers) {
-                const els = document.querySelectorAll(sel);
-                for (const el of els) {
-                    if (el.querySelector('img')) {
-                        if (window.getComputedStyle(el).position === 'static') el.style.position = 'relative';
-                        el.appendChild(openBtn);
-                        return true;
-                    }
-                }
-            }
-            // 2ª prioridade: qualquer container correspondente
-            for (const sel of imgContainers) {
-                const el = document.querySelector(sel);
-                if (el) {
-                    if (window.getComputedStyle(el).position === 'static') el.style.position = 'relative';
-                    el.appendChild(openBtn);
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        if (!tryPlaceTriggerBtn()) {
-            // Container não pronto ainda (ex: após F5 no mobile).
-            // Observa DOM até 5s aguardando o container aparecer.
-            const observer = new MutationObserver(() => {
-                if (tryPlaceTriggerBtn()) observer.disconnect();
-            });
-            observer.observe(document.body, { childList: true, subtree: true });
-
-            setTimeout(() => {
-                observer.disconnect();
-                if (!openBtn.isConnected) {
-                    openBtn.style.cssText = 'position:fixed;bottom:30px;right:20px;top:auto;z-index:100;';
-                    document.body.appendChild(openBtn);
-                }
-            }, 5000);
-        }
-
-
         const modal = document.getElementById('q-modal-ia');
 
         // ── Botão inline acima do botão de compra ──
@@ -1404,18 +1332,6 @@
         function applyProduct(product) {
             currentProduct = product;
         }
-
-
-        openBtn.onclick = (e) => {
-            if (e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-            const prodName = document.querySelector('h1.js-product-name,h1.product__title,.product-single__title,h1')?.innerText || document.title;
-            applyProduct(detectProduct(prodName));
-            populateImageSelector();
-            openModal();
-        };
 
 
         closeBtn.onclick = () => closeModal();
