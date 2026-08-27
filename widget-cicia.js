@@ -1055,22 +1055,11 @@
             return false;
         }
 
-        if (!tryPlaceTriggerBtn()) {
-            // Container não pronto ainda (ex: após F5 no mobile).
-            // Observa DOM até 5s aguardando o container aparecer.
-            const observer = new MutationObserver(() => {
-                if (tryPlaceTriggerBtn()) observer.disconnect();
-            });
-            observer.observe(document.body, { childList: true, subtree: true });
-
-            setTimeout(() => {
-                observer.disconnect();
-                if (!openBtn.isConnected) {
-                    openBtn.style.cssText = 'position:fixed;bottom:30px;right:20px;top:auto;z-index:100;';
-                    document.body.appendChild(openBtn);
-                }
-            }, 5000);
-        }
+        // SELO DESLIGADO (27/08/2026, a pedido do lojista): a loja usa so o botao inline
+        // acima do Comprar. O openBtn segue existindo (o handler openBtn.onclick e o mesmo
+        // do modal) mas nunca entra no DOM — nem sobre a foto, nem como flutuante.
+        // Religar = restaurar este bloco (git revert deste commit).
+        // if (!tryPlaceTriggerBtn()) { ...observer + fallback flutuante... }
 
 
         const modal = document.getElementById('q-modal-ia');
